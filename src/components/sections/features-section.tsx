@@ -1,35 +1,41 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
-import { Zap, Copy, Code } from "lucide-react";
+import { Zap, Users, FileText, Coins } from "lucide-react";
 import { SectionHeader } from "@/components/ui/section-header";
 import { FeatureCard } from "@/components/ui/feature-card";
 
 const features = [
   {
     icon: Zap,
-    title: "Motion-First",
+    title: "AI Test Üretimi",
     description:
-      "Built with Framer Motion 12 for buttery-smooth interactions that feel native and polished.",
+      "Dokümanlarınızdan veya sıfırdan saniyeler içinde kişiselleştirilmiş testler üretin. Claude ile güçlü.",
   },
   {
-    icon: Copy,
-    title: "Copy & Paste",
+    icon: Users,
+    title: "360° Değerlendirme",
     description:
-      "Self-contained components with no hidden peer dependencies. Drop them in and they just work.",
+      "Çalışanları yönetici, iş arkadaşı ve öz-değerlendirme perspektifinden ölçün. Kör noktaları keşfedin.",
   },
   {
-    icon: Code,
-    title: "Fully Typed",
+    icon: FileText,
+    title: "CV & JD Eşleştirme",
     description:
-      "TypeScript-first with every prop documented. Autocomplete works out of the box.",
+      "Görev tanımına en uyumlu adayları AI ile otomatik sıralayın. Toplu CV analizi desteği.",
+  },
+  {
+    icon: Coins,
+    title: "Kontör Ekonomisi",
+    description:
+      "Kullandığın kadar öde. Abonelik yok, sürpriz ücret yok. 50 kontör ile başla, ücretsiz.",
   },
 ];
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
 const FeaturesSection = () => {
@@ -37,18 +43,18 @@ const FeaturesSection = () => {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="py-24 bg-zinc-900 px-6">
+    <section id="features" className="py-24 bg-zinc-950 px-6">
       <div className="max-w-5xl mx-auto">
         <SectionHeader
-          badge="Built for Developers"
-          title="Everything you need to ship faster"
-          subtitle="Three principles behind every component in this library."
+          badge="Özellikler"
+          title="Değerlendirmenin her adımı burada"
+          subtitle="Test oluşturmadan adaya davete, CV analizinden 360° rapora — tüm süreç tek platformda."
         />
 
         <motion.div
           ref={ref}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
         >

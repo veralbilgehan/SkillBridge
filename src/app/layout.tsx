@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SkillBridge — Component Library",
-  description: "Copy-paste ready animated React components for Next.js",
+  title: "SkillBridge — AI Destekli Test ve Değerlendirme Platformu",
+  description: "Dokümanlarınızdan AI ile test üretin, adayları değerlendirin, 360° performans raporu alın.",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased pt-14`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>
