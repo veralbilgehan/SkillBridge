@@ -84,19 +84,42 @@ Toplam ${questionCount} soru üret. Soru tiplerini dengeli dağıt: ${questionTy
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8192,
+      max_tokens: 16000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userPrompt }],
     });
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";
 
+    // JSON'u bul — kesilmiş olabilir, en uzun geçerli parse'ı dene
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return NextResponse.json({ error: "AI geçersiz yanıt döndürdü." }, { status: 500 });
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      // Kesilmiş JSON — questions dizisini manuel kurtarmaya çalış
+      const questionsMatch = text.match(/"questions"\s*:\s*(\[[\s\S]*)/);
+      if (!questionsMatch) {
+        return NextResponse.json({ error: "AI yanıtı işlenemedi. Daha az soru seçin." }, { status: 500 });
+      }
+      // Dizi kapanana kadar al, son geçersiz elemanı kes
+      let arr = questionsMatch[1];
+      // Son tam nesneyi bul
+      const lastBrace = arr.lastIndexOf("},");
+      if (lastBrace !== -1) arr = arr.slice(0, lastBrace + 1) + "]";
+      else arr = arr.slice(0, arr.lastIndexOf("}") + 1) + "]";
+      try {
+        const questions = JSON.parse(arr);
+        parsed = { questions, metadata: { totalQuestions: questions.length, estimatedDuration: questions.length * 2 } };
+      } catch {
+        return NextResponse.json({ error: "AI yanıtı işlenemedi. Daha az soru seçin." }, { status: 500 });
+      }
+    }
+
     return NextResponse.json(parsed);
   } catch (err) {
     console.error("Test generation error:", err);
