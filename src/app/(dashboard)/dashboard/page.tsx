@@ -35,6 +35,120 @@ interface ChatMsg {
   content: string;
 }
 
+// ─── Test Seç Modal ───────────────────────────────────────────────────────────
+
+function loadTestList() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("sb_tests") || "[]") as { id: string; title: string; soruSayisi?: number; sure?: string | null }[];
+    const fallback = [
+      { id: "TST-001", title: "Yazılım Geliştirici — Teknik Yetkinlik Testi", soruSayisi: 20, sure: "45 dk" },
+      { id: "TST-002", title: "Finans Uzmanı — Temel Yetkinlik Değerlendirmesi", soruSayisi: 15, sure: "30 dk" },
+      { id: "TST-003", title: "İnsan Kaynakları — İşe Alım Yetkinlik Testi", soruSayisi: 25, sure: "60 dk" },
+    ];
+    const savedIds = new Set(saved.map((t) => t.id));
+    return [...saved, ...fallback.filter((t) => !savedIds.has(t.id))];
+  } catch {
+    return [
+      { id: "TST-001", title: "Yazılım Geliştirici — Teknik Yetkinlik Testi", soruSayisi: 20, sure: "45 dk" },
+      { id: "TST-002", title: "Finans Uzmanı — Temel Yetkinlik Değerlendirmesi", soruSayisi: 15, sure: "30 dk" },
+    ];
+  }
+}
+
+function TestCozModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
+  const [testler] = useState(() => {
+    if (typeof window === "undefined") return [];
+    return loadTestList();
+  });
+  const [secili, setSecili] = useState<string | null>(null);
+  const [arama, setArama] = useState("");
+
+  const filtreli = testler.filter((t) => t.title.toLowerCase().includes(arama.toLowerCase()));
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md flex flex-col overflow-hidden shadow-2xl shadow-black/60" style={{ maxHeight: "80vh" }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 shrink-0">
+          <div>
+            <h2 className="text-sm font-bold text-white">Test Çöz</h2>
+            <p className="text-[11px] text-zinc-500 mt-0.5">Çözmek istediğiniz testi seçin</p>
+          </div>
+          <button onClick={onClose}><X className="w-4 h-4 text-zinc-400 hover:text-white" /></button>
+        </div>
+
+        {/* Arama */}
+        <div className="px-4 py-3 border-b border-zinc-800 shrink-0">
+          <div className="flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2">
+            <Search className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              value={arama}
+              onChange={(e) => setArama(e.target.value)}
+              placeholder="Test ara…"
+              className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-600 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Test Listesi */}
+        <div className="flex-1 overflow-y-auto py-2 px-2">
+          {filtreli.length === 0 ? (
+            <p className="text-xs text-zinc-600 text-center py-8">Eşleşen test bulunamadı.</p>
+          ) : (
+            filtreli.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setSecili(t.id)}
+                className={cn(
+                  "w-full flex items-start gap-3 px-3 py-3 rounded-xl transition-colors text-left",
+                  secili === t.id
+                    ? "bg-indigo-500/15 border border-indigo-500/30"
+                    : "hover:bg-zinc-800 border border-transparent"
+                )}
+              >
+                <div className={cn(
+                  "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 mt-0.5",
+                  secili === t.id ? "bg-indigo-500/20 border-indigo-500/30" : "bg-zinc-800 border-zinc-700"
+                )}>
+                  <ClipboardList className={cn("w-4 h-4", secili === t.id ? "text-indigo-400" : "text-zinc-500")} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={cn("text-sm font-medium leading-snug", secili === t.id ? "text-white" : "text-zinc-300")}>
+                    {t.title}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {t.soruSayisi && <span className="text-[11px] text-zinc-600">{t.soruSayisi} soru</span>}
+                    {t.sure && <span className="text-[11px] text-zinc-600">· {t.sure}</span>}
+                  </div>
+                </div>
+                {secili === t.id && <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-1" />}
+              </button>
+            ))
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 py-3 border-t border-zinc-800 shrink-0 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-zinc-700 text-zinc-400 text-sm hover:bg-zinc-800 transition-colors">
+            İptal
+          </button>
+          <button
+            disabled={!secili}
+            onClick={() => secili && router.push(`/tests/${secili}/take`)}
+            className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+          >
+            <ChevronRight className="w-4 h-4" />
+            Teste Başla
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Komut Eşleme ─────────────────────────────────────────────────────────────
 
 const KOMUTLAR = [
@@ -95,6 +209,9 @@ const HIZLI_ERISIM = [
 
 export default function DashboardPage() {
   const router = useRouter();
+
+  // ── Test Çöz Modal ─────────────────────────────────────────────────────────
+  const [testCozAcik, setTestCozAcik] = useState(false);
 
   // ── Arama ──────────────────────────────────────────────────────────────────
   const [query, setQuery] = useState("");
@@ -170,6 +287,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {testCozAcik && <TestCozModal onClose={() => setTestCozAcik(false)} />}
+
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -178,13 +297,13 @@ export default function DashboardPage() {
             {new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} · Son güncelleme az önce
           </p>
         </div>
-        <Link
-          href="/tests/new"
+        <button
+          onClick={() => setTestCozAcik(true)}
           className="flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-semibold rounded-xl transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Test Oluştur
-        </Link>
+          Test Çöz
+        </button>
       </div>
 
       {/* ── Komut Arama ────────────────────────────────────────────────────── */}
