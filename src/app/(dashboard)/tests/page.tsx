@@ -8,7 +8,6 @@ import {
   ClipboardList,
   Users,
   Eye,
-
   Pencil,
   Clock,
   Sparkles,
@@ -24,7 +23,9 @@ import {
   Send,
   Download,
   Trash2,
+  X,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -344,6 +345,7 @@ function loadTests(): Test[] {
 }
 
 export default function TestsPage() {
+  const router = useRouter();
   const [tests, setTests] = useState<Test[]>(() => {
     if (typeof window === "undefined") return MOCK_TESTS;
     return loadTests();
@@ -353,6 +355,8 @@ export default function TestsPage() {
   const [templateCategory, setTemplateCategory] = useState<TemplateCategory | "Tümü">("Tümü");
   const [difficultyFilter, setDifficultyFilter] = useState<Difficulty | "Tümü">("Tümü");
   const [downloadedId, setDownloadedId] = useState<string | null>(null);
+  const [editModal, setEditModal] = useState<Test | null>(null);
+  const [editForm, setEditForm] = useState<{ title: string; status: TestStatus }>({ title: "", status: "aktif" });
 
   const isLibrary = activeTab === "Hazır Şablonlar";
 
@@ -370,6 +374,26 @@ export default function TestsPage() {
   function handleDownload(id: string) {
     setDownloadedId(id);
     setTimeout(() => setDownloadedId(null), 2000);
+  }
+
+  function openEdit(test: Test) {
+    setEditForm({ title: test.title, status: test.status });
+    setEditModal(test);
+  }
+
+  function saveEdit() {
+    if (!editModal || !editForm.title.trim()) return;
+    setTests((prev) => {
+      const next = prev.map((t) => t.id === editModal.id ? { ...t, ...editForm } : t);
+      try {
+        const saved = JSON.parse(localStorage.getItem("sb_tests") || "[]") as Test[];
+        const merged = saved.map((t: Test) => t.id === editModal.id ? { ...t, ...editForm } : t);
+        if (!merged.find((t: Test) => t.id === editModal.id)) merged.push({ ...editModal, ...editForm });
+        localStorage.setItem("sb_tests", JSON.stringify(merged));
+      } catch {}
+      return next;
+    });
+    setEditModal(null);
   }
 
   const filtered = tests.filter((t) => {
@@ -514,6 +538,47 @@ export default function TestsPage() {
         </>
       )}
 
+      {/* ── Düzenle Modal ──────────────────────────────────────────────────── */}
+      {editModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white font-semibold text-sm">Test Düzenle</h2>
+              <button onClick={() => setEditModal(null)}><X className="w-4 h-4 text-zinc-400 hover:text-white" /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Test Başlığı</label>
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((p) => ({ ...p, title: e.target.value }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Durum</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm((p) => ({ ...p, status: e.target.value as TestStatus }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="aktif">Aktif</option>
+                  <option value="taslak">Taslak</option>
+                  <option value="arsiv">Arşiv</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => setEditModal(null)} className="flex-1 py-2 rounded-lg border border-zinc-700 text-zinc-400 text-sm hover:bg-zinc-800 transition-colors">İptal</button>
+              <button onClick={saveEdit} className="flex-1 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4" /> Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── My tests view ──────────────────────────────────────────────────── */}
       {!isLibrary && (
         <>
@@ -542,6 +607,7 @@ export default function TestsPage() {
                   downloaded={downloadedId === test.id}
                   onDelete={() => handleDelete(test.id)}
                   onDownload={() => handleDownload(test.id)}
+                  onEdit={() => openEdit(test)}
                   isLast={idx === filtered.length - 1}
                 />
               ))}
@@ -637,6 +703,28 @@ function SeviyeTespitBanner() {
 
 function VakaCard({ template: tpl }: { template: Template }) {
   const [added, setAdded] = useState(false);
+  const router = useRouter();
+
+  function kullan() {
+    const yeniTest: Test = {
+      id: `TPL-${tpl.id}-${Date.now()}`,
+      title: tpl.title,
+      sektor: tpl.sektor,
+      meslek: tpl.category,
+      source: "template",
+      status: "aktif",
+      soruSayisi: tpl.soruSayisi,
+      sure: tpl.sure,
+      adaySayisi: 0,
+      date: new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" }),
+    };
+    try {
+      const saved = JSON.parse(localStorage.getItem("sb_tests") || "[]") as Test[];
+      localStorage.setItem("sb_tests", JSON.stringify([yeniTest, ...saved]));
+    } catch {}
+    setAdded(true);
+    setTimeout(() => router.push("/tests"), 800);
+  }
 
   return (
     <div className="group flex flex-col gap-4 p-5 bg-zinc-900 border border-violet-500/20 rounded-2xl hover:border-violet-500/35 transition-colors">
@@ -699,7 +787,7 @@ function VakaCard({ template: tpl }: { template: Template }) {
           Önizle
         </button>
         <button
-          onClick={() => setAdded(true)}
+          onClick={kullan}
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-colors",
             added
@@ -722,6 +810,28 @@ function VakaCard({ template: tpl }: { template: Template }) {
 
 function TemplateCard({ template: tpl }: { template: Template }) {
   const [added, setAdded] = useState(false);
+  const router = useRouter();
+
+  function kullan() {
+    const yeniTest: Test = {
+      id: `TPL-${tpl.id}-${Date.now()}`,
+      title: tpl.title,
+      sektor: tpl.sektor,
+      meslek: tpl.category,
+      source: "template",
+      status: "aktif",
+      soruSayisi: tpl.soruSayisi,
+      sure: tpl.sure,
+      adaySayisi: 0,
+      date: new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" }),
+    };
+    try {
+      const saved = JSON.parse(localStorage.getItem("sb_tests") || "[]") as Test[];
+      localStorage.setItem("sb_tests", JSON.stringify([yeniTest, ...saved]));
+    } catch {}
+    setAdded(true);
+    setTimeout(() => router.push("/tests"), 800);
+  }
 
   return (
     <div className="group flex flex-col gap-4 p-5 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors">
@@ -771,7 +881,7 @@ function TemplateCard({ template: tpl }: { template: Template }) {
           Önizle
         </button>
         <button
-          onClick={() => setAdded(true)}
+          onClick={kullan}
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-colors",
             added
@@ -797,14 +907,17 @@ function TestRow({
   downloaded,
   onDelete,
   onDownload,
+  onEdit,
   isLast,
 }: {
   test: Test;
   downloaded: boolean;
   onDelete: () => void;
   onDownload: () => void;
+  onEdit: () => void;
   isLast: boolean;
 }) {
+  const router = useRouter();
   return (
     <div
       className={cn(
@@ -865,12 +978,14 @@ function TestRow({
         <button
           className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-700 rounded-lg transition-colors"
           title="Görüntüle"
+          onClick={() => router.push(`/tests/${test.id}`)}
         >
           <Eye className="w-3.5 h-3.5" />
         </button>
         <button
           className="p-1.5 text-zinc-500 hover:text-indigo-400 hover:bg-zinc-700 rounded-lg transition-colors"
           title="Düzenle"
+          onClick={onEdit}
         >
           <Pencil className="w-3.5 h-3.5" />
         </button>
