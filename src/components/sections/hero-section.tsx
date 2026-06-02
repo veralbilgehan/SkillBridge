@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { TypewriterText } from "@/components/ui/typewriter-text";
+import { renderCanvas } from "@/components/ui/canvas";
 
 const container: Variants = {
   animate: { transition: { staggerChildren: 0.12 } },
@@ -14,11 +16,21 @@ const item: Variants = {
 };
 
 const HeroSection = () => {
+  useEffect(() => {
+    renderCanvas();
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-zinc-950 overflow-hidden pt-16">
-      {/* Gradient glow */}
+      {/* Canvas animation — mouse-tracked color trails */}
+      <canvas
+        id="hero-canvas"
+        className="pointer-events-none absolute inset-0 w-full h-full"
+      />
+
+      {/* Gradient glow on top of canvas */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-[1]"
         style={{
           background:
             "radial-gradient(ellipse 80% 50% at 50% -5%, oklch(0.4 0.12 264 / 0.4), transparent)",

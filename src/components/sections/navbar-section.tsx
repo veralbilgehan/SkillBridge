@@ -1,47 +1,124 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {
+  FileText,
+  ClipboardList,
+  RotateCcw,
+  Users,
+  BarChart2,
+  Sparkles,
+  BookOpen,
+  FileSearch,
+} from "lucide-react";
+import { SkillBridgeHeader, type NavItem } from "@/components/ui/21st-navbar";
 
-const NavbarSection = () => {
-  const [scrolled, setScrolled] = useState(false);
+// ─── Menü Yapısı ──────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+const menuItems: NavItem[] = [
+  {
+    text: "Özellikler",
+    items: [
+      {
+        to: "#features",
+        text: "AI Test Üretimi",
+        description: "Dokümanlarınızdan saniyeler içinde soru bankası oluşturun.",
+        icon: <Sparkles className="w-4 h-4 text-indigo-400" />,
+      },
+      {
+        to: "#features",
+        text: "360° Değerlendirme",
+        description: "Çok kaynaklı performans analizleri ve yetkinlik raporları.",
+        icon: <RotateCcw className="w-4 h-4 text-violet-400" />,
+      },
+      {
+        to: "#features",
+        text: "Doküman Kütüphanesi",
+        description: "PDF, DOCX, PPTX yükleyin; AI ile içerik üretin.",
+        icon: <FileText className="w-4 h-4 text-emerald-400" />,
+      },
+      {
+        to: "#features",
+        text: "Aday Yönetimi",
+        description: "Davet edin, takip edin, raporlayın.",
+        icon: <Users className="w-4 h-4 text-amber-400" />,
+      },
+    ],
+  },
+  {
+    text: "Kullanım Alanları",
+    items: [
+      {
+        to: "#how-it-works",
+        text: "İşe Alım Süreçleri",
+        description: "Adayları objektif testlerle değerlendirin.",
+        icon: <ClipboardList className="w-4 h-4 text-indigo-400" />,
+      },
+      {
+        to: "#how-it-works",
+        text: "Çalışan Gelişimi",
+        description: "Yetkinlik haritası ve bireysel gelişim planı.",
+        icon: <BarChart2 className="w-4 h-4 text-emerald-400" />,
+      },
+      {
+        to: "#how-it-works",
+        text: "Kişisel Öğrenme",
+        description: "Bireysel kullanıcılar için kişiselleştirilmiş testler.",
+        icon: <BookOpen className="w-4 h-4 text-violet-400" />,
+      },
+      {
+        to: "#how-it-works",
+        text: "Vaka Analizi",
+        description: "Gerçekçi senaryolarla karar alma yetkinliği.",
+        icon: <FileSearch className="w-4 h-4 text-amber-400" />,
+      },
+    ],
+  },
+  {
+    text: "Nasıl Çalışır",
+    to: "#how-it-works",
+  },
+  {
+    text: "Fiyatlar",
+    to: "#pricing",
+  },
+];
 
-  return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 md:px-12 transition-all duration-200 ${
-        scrolled ? "bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800" : "bg-transparent"
-      }`}
+// ─── Logo ─────────────────────────────────────────────────────────────────────
+
+const Logo = () => (
+  <Link href="/" className="font-bold text-white text-lg tracking-tight">
+    Skill<span className="text-indigo-400">Bridge</span>
+  </Link>
+);
+
+// ─── Sağ Butonlar ─────────────────────────────────────────────────────────────
+
+const RightContent = () => (
+  <>
+    <Link
+      href="/login"
+      className="text-sm text-zinc-400 hover:text-white transition-colors px-3 py-2"
     >
-      <span className="font-bold text-white text-lg tracking-tight">
-        Skill<span className="text-indigo-400">Bridge</span>
-      </span>
-      <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-        <Link href="#features" className="hover:text-white transition-colors">Özellikler</Link>
-        <Link href="#how-it-works" className="hover:text-white transition-colors">Nasıl Çalışır</Link>
-        <Link href="#pricing" className="hover:text-white transition-colors">Fiyatlar</Link>
-      </nav>
-      <div className="flex items-center gap-3">
-        <Link
-          href="/login"
-          className="text-sm text-zinc-400 hover:text-white transition-colors px-4 py-2"
-        >
-          Giriş Yap
-        </Link>
-        <Link
-          href="/register"
-          className="text-sm bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          Ücretsiz Başla
-        </Link>
-      </div>
-    </header>
-  );
-};
+      Giriş Yap
+    </Link>
+    <Link
+      href="/register"
+      className="text-sm bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+    >
+      Ücretsiz Başla
+    </Link>
+  </>
+);
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+
+const NavbarSection = () => (
+  <SkillBridgeHeader
+    logo={<Logo />}
+    menuItems={menuItems}
+    rightContent={<RightContent />}
+  />
+);
 
 export { NavbarSection };

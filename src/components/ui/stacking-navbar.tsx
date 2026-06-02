@@ -4,10 +4,16 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-const StackingNavbar = () => {
+interface NavItem {
+  href: string;
+  label: string;
+  active?: boolean;
+}
+
+const StackingNavbar = ({ items }: { items?: NavItem[] }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const items = [
+  const defaultItems: NavItem[] = items ?? [
     { href: "#", label: "Projects" },
     { href: "#", label: "Components" },
     { href: "#", label: "Information" },
@@ -19,10 +25,11 @@ const StackingNavbar = () => {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      {items.map((item, index) => (
+      {defaultItems.map((item, index) => (
         <StackingNavbarItem
           href={item.href}
           expanded={expanded}
+          active={item.active}
           key={item.label}
           index={index}
         >
@@ -38,27 +45,36 @@ const StackingNavbarItem = ({
   children,
   style,
   expanded,
+  active,
   index,
 }: {
   href: string;
   children: React.ReactNode;
   style?: React.CSSProperties;
   expanded: boolean;
+  active?: boolean;
   index: number;
 }) => {
   return (
     <motion.div
-      initial={{ x: -100 * index }}
-      animate={{ x: expanded ? 0 : -100 * index }}
+      initial={{ x: -110 * index }}
+      animate={{ x: expanded ? 0 : -110 * index }}
       transition={{
-        duration: 0.6,
-        ease: "easeInOut",
-        delay: 0.1 * index,
+        duration: 0.5,
+        ease: "circInOut",
+        delay: 0.08 * index,
+        type: "spring",
+        stiffness: 120,
+        damping: 18,
       }}
       style={{ zIndex: 100 - index }}
     >
       <Link
-        className="flex items-center text-sm px-5 py-3 rounded-3xl bg-[#b0aaaa1a] no-underline text-black backdrop-blur-lg hover:bg-black hover:text-white transition-colors duration-300 ease-in-out"
+        className={`flex items-center text-sm px-5 py-2.5 rounded-3xl no-underline backdrop-blur-lg transition-colors duration-300 ease-in-out whitespace-nowrap ${
+          active
+            ? "bg-indigo-600 text-white"
+            : "bg-zinc-800/60 text-zinc-300 hover:bg-zinc-700 hover:text-white"
+        }`}
         href={href}
         style={style}
       >

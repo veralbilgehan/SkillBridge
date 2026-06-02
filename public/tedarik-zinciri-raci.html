@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tedarik Zinciri Müdürü RACI Formu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: #f0f5fa;
+            padding: 25px 15px;
+        }
+
+        .form-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden;
+            border: 1px solid rgba(102,126,234,0.2);
+        }
+
+        /* Header */
+        .form-header {
+            background: linear-gradient(145deg, #1a2639, #2c3e50);
+            color: white;
+            padding: 32px 40px;
+            border-bottom: 5px solid #27ae60;
+        }
+
+        .form-header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-header h1 span {
+            background: #27ae60;
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .form-header .meta {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+            color: #b2bec3;
+            font-size: 15px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            padding: 20px 30px;
+            background: #f8fafd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39,174,96,0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #2c3e50;
+            border: 1px solid #cbd5e0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-excel {
+            background: linear-gradient(145deg, #217346, #1e6b3c);
+            color: white;
+        }
+
+        .search-box {
+            padding: 10px 20px;
+            border: 1px solid #cbd5e0;
+            border-radius: 40px;
+            width: 280px;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* Ana içerik */
+        .form-content {
+            padding: 30px;
+            background: #ffffff;
+        }
+
+        /* Bölüm kartları */
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            border: 1px solid #edf2f7;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .section-header {
+            background: linear-gradient(90deg, #f8fafc, #ffffff);
+            padding: 18px 25px;
+            border-bottom: 2px solid #27ae60;
+            font-weight: 700;
+            font-size: 20px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header i {
+            color: #27ae60;
+            font-size: 24px;
+        }
+
+        .section-body {
+            padding: 25px;
+        }
+
+        /* Grid sistem */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        /* Form elemanları */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-control:hover {
+            border-color: #94a3b8;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Görev tablosu */
+        .tasks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .tasks-table th {
+            background: #f1f5f9;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 2px solid #27ae60;
+        }
+
+        .tasks-table td {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        .tasks-table input, .tasks-table select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .tasks-table textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            min-height: 60px;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        .add-row-btn {
+            background: #f1f5f9;
+            border: 2px dashed #94a3b8;
+            padding: 15px;
+            text-align: center;
+            border-radius: 12px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .add-row-btn:hover {
+            background: #e2e8f0;
+            border-color: #667eea;
+            color: #1e293b;
+        }
+
+        /* Yetkinlik kartları */
+        .competence-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .competence-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-left: 4px solid #27ae60;
+            padding-left: 12px;
+        }
+
+        /* KPI listesi */
+        .kpi-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .kpi-item input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+        }
+
+        /* İmza alanı */
+        .signature-area {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #cbd5e0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-3, .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <!-- Header -->
+    <div class="form-header">
+        <div class="meta" style="margin-top:0;">
+            <div>📅 İlk Yayın Tarihi: <input type="date" id="ilkYayinTarihi" class="form-control" style="display:inline; width:auto; background:rgba(255,255,255,0.1); color:white; border:none;"></div>
+            <div>🔄 Revizyon Tarihi: <input type="date" id="revizyonTarihi" class="form-control" style="display:inline; width:auto; background:rgba(255,255,255,0.1); color:white; border:none;"></div>
+            <div>📌 Revizyon No: <input type="text" id="revizyonNo" value="0" style="width:50px; background:rgba(255,255,255,0.1); color:white; border:none; padding:5px;"></div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="exportToExcel()">
+                ⬇️ Excel'e Aktar (Tüm Form)
+            </button>
+            <button class="btn btn-secondary" onclick="addNewTaskRow()">
+                ➕ Yeni Görev Satırı
+            </button>
+            <button class="btn btn-secondary" onclick="resetForm()">
+                🔄 Sıfırla
+            </button>
+        </div>
+        <input type="text" class="search-box" placeholder="🔍 Görevlerde ara..." id="taskSearch" onkeyup="filterTasks()">
+    </div>
+
+    <!-- Ana form içeriği -->
+    <div class="form-content" id="mainForm">
+
+        <!-- BÖLÜM 1: POZİSYON BİLGİLERİ -->
+        <div class="section-card">
+            <div class="section-header">
+                <i>📌</i> 1. Pozisyon & Organizasyon Bilgileri
+            </div>
+            <div class="section-body">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>1. Pozisyon Adı <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="pozisyonAdi" value="Tedarik Zinciri Müdürü" placeholder="Örn: Tedarik Zinciri Müdürü">
+                    </div>
+                    <div class="form-group">
+                        <label>2. Şirket Adı</label>
+                        <input type="text" class="form-control" id="sirketAdi" value="Varsayılan Şirket">
+                    </div>
+                    <div class="form-group">
+                        <label>3. İş Birimi Adı</label>
+                        <input type="text" class="form-control" id="isBirimi" value="Tedarik Zinciri Bölümü / Operasyonlar">
+                    </div>
+                    <div class="form-group">
+                        <label>4. Lokasyon / İşyeri</label>
+                        <input type="text" class="form-control" id="lokasyon" value="Merkez Ofis">
+                    </div>
+                    <div class="form-group">
+                        <label>5. Bağlı Olunan Üst (İdari)*</label>
+                        <input type="text" class="form-control" id="idariUst" value="Operasyonlar Direktörü">
+                    </div>
+                    <div class="form-group">
+                        <label>6. Bağlı Olunan Üst (Fonksiyonel)**</label>
+                        <input type="text" class="form-control" id="fonksiyonelUst" value="Operasyonlar Direktörü">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>7. İştirakler (Bağlı Birimler / Pozisyonlar)</label>
+                    <textarea class="form-control" id="istirakler">Tedarik Zinciri Müdürlüğünde Görev Alan Mühendisler, Teknikerler ve Diğer Teknik Kadroları</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- BÖLÜM 3: GÖREV TABLOSU (SÜREÇ / YETKİNLİK / RACI / KPI) - ANA TABLO -->
+        <div class="section-card">
+            <div class="section-header">
+                <i>📋</i> 9. Süreçler, Yetkinlikler, RACI ve KPI Tablosu
+            </div>
+            <div class="section-body">
+                <table class="tasks-table" id="raciTaskTable">
+                    <thead>
+                        <tr>
+                            <th>Süreç Adı</th>
+                            <th>Yetkinlik</th>
+                            <th>Davranış Göstergeleri (Görev Tanımı)</th>
+                            <th>RACI</th>
+                            <th>Kilit Performans Göstergeleri (KPI)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="raciTableBody">
+                        <!-- JavaScript ile doldurulacak -->
+                    </tbody>
+                </table>
+                <div class="add-row-btn" onclick="addNewTaskRow()">
+                    ➕ Yeni Satır Ekle
+                </div>
+            </div>
+        </div>
+
+        <!-- BÖLÜM 4: GENEL PERFORMANS GÖSTERGELERİ (Toplu KPI) -->
+        <div class="section-card">
+            <div class="section-header">
+                <i>📈</i> 10. Genel Performans Göstergeleri (Toplam KPI Seti)
+            </div>
+            <div class="section-body">
+                <div class="grid-4">
+                    <div class="form-group"><label>OTIF ≥ %95</label><input class="form-control" id="kpi1" value="%95"></div>
+                    <div class="form-group"><label>Kritik malzeme gecikmesi ≤ X saat/ay</label><input class="form-control" id="kpi2" value="10 saat"></div>
+                    <div class="form-group"><label>Stok doğruluğu ≥ %98</label><input class="form-control" id="kpi3" value="%98"></div>
+                    <div class="form-group"><label>Atıl/obsolete stok ≤ X TL / ciro %</label><input class="form-control" id="kpi4" value="5000 TL"></div>
+                    <div class="form-group"><label>Satın alma tasarrufu ≥ X TL / yıl</label><input class="form-control" id="kpi5" value="100000 TL"></div>
+                    <div class="form-group"><label>PO çevrim süresi ≤ X gün</label><input class="form-control" id="kpi6" value="5 gün"></div>
+                    <div class="form-group"><label>Gümrükleme çevrim süresi ≤ X gün</label><input class="form-control" id="kpi7" value="3 gün"></div>
+                    <div class="form-group"><label>ERP kayıt tamlık ≥ %95</label><input class="form-control" id="kpi8" value="%95"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BÖLÜM 5: YÖNETSEL YETKİNLİKLER -->
+        <div class="section-card">
+            <div class="section-header">
+                <i>👔</i> 11. Yönetsel Yetkinlikler & Sorumluluklar (Seviye 3)
+            </div>
+            <div class="section-body">
+                <div class="grid-3">
+                    <div class="competence-card">
+                        <h4>Planlama & Organize Etme – Seviye 3</h4>
+                        <textarea class="form-control">Çoklu projede önceliklendirme, kritik yol/long-lead yönetimi, revizyon iletişimi.</textarea>
+                    </div>
+                    <div class="competence-card">
+                        <h4>Finansal/Ticari Bakış – Seviye 3</h4>
+                        <textarea class="form-control">TCO düşünme, tasarrufun doğrulanması, bütçe–kur–revizyon etkisi yönetimi.</textarea>
+                    </div>
+                    <div class="competence-card">
+                        <h4>Ekip Yönetimi & Gelişimi – Seviye 3</h4>
+                        <textarea class="form-control">Satın alma/depo/lojistik ekiplerinde standart iş, eğitim, performans takibi.</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BÖLÜM 6: TEKNİK/MESLEKİ BECERİLER -->
+        <div class="section-card">
+            <div class="section-header">
+                <i>🛠️</i> 12. Teknik / Mesleki Beceriler
+            </div>
+            <div class="section-body">
+                <div class="grid-4">
+                    <div class="form-group"><label>Satın Alma & Sözleşme Yönetimi</label><input class="form-control" value="Seviye 4"></div>
+                    <div class="form-group"><label>Tedarikçi Performans Yönetimi</label><input class="form-control" value="Seviye 3"></div>
+                    <div class="form-group"><label>Envanter Yönetimi (ABC, min–max)</label><input class="form-control" value="Seviye 3"></div>
+                    <div class="form-group"><label>Lojistik & Sevkiyat Planlama (OTIF)</label><input class="form-control" value="Seviye 3"></div>
+                    <div class="form-group"><label>Gümrük/İthalat-İhracat, Incoterms</label><input class="form-control" value="Seviye 3"></div>
+                    <div class="form-group"><label>ERP kullanımı (IFS / benzeri)</label><input class="form-control" value="Seviye 3"></div>
+                    <div class="form-group"><label>İleri Excel + raporlama (Power BI)</label><input class="form-control" value="Seviye 3"></div>
+                    <div class="form-group"><label>Kalite/EYS temel bilgisi (ISO)</label><input class="form-control" value="Seviye 2–3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BÖLÜM 7: GENEL KURALLAR -->
+        <div class="section-card">
+            <div class="section-header">
+                <i>📜</i> 13. Bireysel Katkı Rolleri için Geçerli Genel Kurallar
+            </div>
+            <div class="section-body">
+                <ol style="padding-left:20px; color:#334155;">
+                    <li>İlgili Pozisyonun yetkinlik, beceri ve gereklilikleri için; şirket içi doküman yönetim sisteminde yayınlı güncel "Pozisyon Gereklilikleri Yetki Tablosu", Pozisyon Yetkinlikleri, Mesleki Beceri Listesi, Prensipler geçerlidir.</li>
+                    <li>İlgili pozisyonun, sorumlu olduğu süreçlerin detayları için; Şirket içi kullanılan Süreç Sistemi, şirket içi doküman yönetim sisteminde yayınlı güncel dokümanlar (Prosedür, Talimat, Duyuru, İç Yazışmalar vb.) geçerlidir. Sorumlu olduğu süreçler dahilinde yöneticilerinin verdiği benzer nitelikteki diğer görevleri gerçekleştirmekle yükümlüdür.</li>
+                    <li>İş tanımı kapsamında yer alan ve yöneticisi tarafından kendisine bildirilen benzer nitelikteki diğer görevlerin; yürürlükteki kanun, tüzük, yönetmelik ve diğer ilgili ve yan mevzuat hükümleri uyarınca gereği gibi yerine getirilmesinden, yetkilerin yerinde, zamanında ve gereğince kullanılmasından sorumludur.</li>
+                    <li>İşbu Görev Tanımı Formu ile kapsamı belirlenen pozisyonun şirket organizasyon yapısı içerisindeki yeri, şirket içi kullanılan ve erişime açık olan "Organizasyon Yapısı" sisteminde tanımlanmıştır. Şirket, şirket organizasyon yapısını ve ilgili sistemlerde yer alan bilgileri tek taraflı olarak değiştirme hakkını saklı tutar.</li>
+                    <li>İlgili pozisyonun sorumlu olduğu bölge / ürün / işyeri gibi sorumluluk alanı değişimleri için; şirket içi doküman yönetim sisteminde yayınlı güncel duyuru, iç yazışmalar, yayınlı dokümanlar geçerlidir.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BÖLÜM 8: İMZA / TANIMLAR -->
+        <div class="signature-area">
+            <div class="grid-2">
+                <div>
+                    <h4 style="margin-bottom:15px;">Görevi Tebliğ Eden Yönetici</h4>
+                    <div class="form-group"><label>Ad Soyad</label><input class="form-control" id="yoneticiAd"></div>
+                    <div class="form-group"><label>Pozisyon Adı</label><input class="form-control" id="yoneticiPozisyon" value="Proje Departman Müdürü"></div>
+                    <div class="form-group"><label>Tebliğ Tarihi</label><input type="date" class="form-control" id="tebligTarihi"></div>
+                    <div class="form-group"><label>İmza</label><input class="form-control" placeholder="İmza (elektronik)"></div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom:15px;">Görevli</h4>
+                    <div class="form-group"><label>Ad Soyad</label><input class="form-control" id="gorevliAd"></div>
+                    <div class="form-group"><label>Pozisyon Adı</label><input class="form-control" value="Tedarik Zinciri Müdürü"></div>
+                    <div class="form-group"><label>Tarih</label><input type="date" class="form-control"></div>
+                    <div class="form-group"><label>İmza</label><input class="form-control" placeholder="İmza (elektronik)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const defaultTasks = [
+        {surec: "Talep Toplama & Tedarik Planlama (MRP/termin bazlı)", yetkinlik: "Planlama & organizasyon", davranis: "PM/ÜM'den gelen BOM/konfigürasyon ve termin bilgilerini netleştirir; "eksik bilgiyle satın alma" riskini görünür kılar.", raci: "A/R", kpi: "Kritik malzeme plan doğruluğu (%)"},
+        {surec: "", yetkinlik: "Analitik Düşünme", davranis: "Kritik malzeme listesi (long lead items) çıkarır; alternatif/ikame senaryoları hazırlar.", raci: "A/R", kpi: "Expedite (acil satın alma) oranı (%)"},
+        {surec: "", yetkinlik: "Risk Yönetimi, Paydaş Yönetimi", davranis: "Plan revizyonlarını etkisiyle (termin/bütçe) birlikte yayınlar.", raci: "A/R", kpi: "Plan revizyon sayısı (adet)"},
+        {surec: "Tedarikçi Seçimi & Onay Süreci", yetkinlik: "Pazarlık, Ticari Bakış", davranis: "Tedarikçi değerlendirme kriterlerini (fiyat/termin/kalite/servis) standartlaştırır.", raci: "A/R", kpi: "Onaylı tedarikçi oranı (%)"},
+        {surec: "", yetkinlik: "Kalite Bilinci", davranis: "Kritik ürünlerde en az 2 kaynak stratejisi kurar (dual sourcing).", raci: "A/R", kpi: "Alternatif tedarikçi sayısı (adet)"},
+        {surec: "", yetkinlik: "Prosedür, Disiplin", davranis: "Tedarikçi onay dokümantasyonunu (sertifika, referans, kalite kayıtları) tamamlattırır.", raci: "A/R", kpi: "Tedarikçi ilk yıl performansı (skor)"},
+        {surec: "Satın Alma Operasyonu (RFQ–PO–teslimat takibi)", yetkinlik: "Uctan Uca Takip", davranis: "RFQ/teklif karşılaştırmasını şeffaf yapar; satın alma kararını gerekçelendirir.", raci: "A/R", kpi: "OTD (On-time delivery) %"},
+        {surec: "", yetkinlik: "Problem Çözme & İletişim", davranis: "Teslimat takvimini günlük/haftalık yönetir; gecikme riskini erken yakalar.", raci: "A/R", kpi: "Gecikme kaynaklı iş duruş saati (saat)"},
+        {surec: "", yetkinlik: "Veri Disiplini (ERP)", davranis: "Revizyon/ek işler için maliyet etkisini FIN+SAT ile görünür kılar.", raci: "A/R", kpi: "PO çevrim süresi (gün)"},
+        {surec: "İthalat–İhracat & Gümrük Süreçleri", yetkinlik: "Gümrük Lojistik Bilgisi", davranis: "Incoterms, gümrük evrak seti ve teslim sorumluluklarını netleştirir.", raci: "A/R", kpi: "Gümrükleme çevrim süresi (gün)"},
+        {surec: "", yetkinlik: "Risk Uyum", davranis: "Gümrük müşaviri/taşıyıcı performansını takip eder.", raci: "A/R", kpi: "Gümrük kaynaklı gecikme adedi (adet)"},
+        {surec: "", yetkinlik: "Planlama", davranis: "Gecikme/ceza riskini (evrak eksikliği vb.) proaktif yönetir.", raci: "A/R", kpi: "Ek lojistik maliyet (TL)"},
+        {surec: "Depo–Envanter Yönetimi", yetkinlik: "Envanter Yönetimi", davranis: "Stok doğruluğu için sayım planı (cycle count) kurar; sapmaları kök neden analiz eder.", raci: "A/R", kpi: "Stok doğruluğu (%)"},
+        {surec: "", yetkinlik: "Süreç Disiplini", davranis: "Minimum–maksimum/ABC gibi yöntemlerle stok seviyelerini optimize eder.", raci: "A/R", kpi: "Stok devir hızı (adet/yıl)"},
+        {surec: "", yetkinlik: "Analitik Raporlama", davranis: "Kritik malzeme bulunurluğunu proje risk haritasına bağlar.", raci: "A/R", kpi: "Obsolete/atıl stok (TL)"}
+    ];
+
+    function loadTasks(tasks) {
+        const tbody = document.getElementById('raciTableBody');
+        tbody.innerHTML = '';
+        tasks.forEach(t => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td><input type="text" value="${t.surec || ''}" placeholder="Süreç Adı"></td>
+                <td><input type="text" value="${t.yetkinlik || ''}" placeholder="Yetkinlik"></td>
+                <td><textarea placeholder="Davranış Göstergeleri">${t.davranis || ''}</textarea></td>
+                <td><select><option ${t.raci=='A/R'?'selected':''}>A/R</option><option ${t.raci=='R'?'selected':''}>R</option><option ${t.raci=='A'?'selected':''}>A</option><option ${t.raci=='C'?'selected':''}>C</option><option ${t.raci=='I'?'selected':''}>I</option></select></td>
+                <td><input type="text" value="${t.kpi || ''}" placeholder="KPI"></td>
+            `;
+        });
+    }
+
+    window.addNewTaskRow = function() {
+        const tbody = document.getElementById('raciTableBody');
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td><input type="text" placeholder="Süreç Adı"></td>
+            <td><input type="text" placeholder="Yetkinlik"></td>
+            <td><textarea placeholder="Davranış Göstergeleri"></textarea></td>
+            <td><select><option>A/R</option><option>R</option><option>A</option><option>C</option><option>I</option></select></td>
+            <td><input type="text" placeholder="KPI"></td>
+        `;
+    };
+
+    window.filterTasks = function() {
+        const search = document.getElementById('taskSearch').value.toLowerCase();
+        const rows = document.querySelectorAll('#raciTableBody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(search) ? '' : 'none';
+        });
+    };
+
+    window.exportToExcel = function() {
+        const wb = XLSX.utils.book_new();
+
+        const ws1_data = [
+            ['TEDARİK ZİNCİRİ MÜDÜRÜ GÖREV TANIMI FORMU'],
+            ['İlk Yayın Tarihi', document.getElementById('ilkYayinTarihi')?.value || ''],
+            ['Revizyon Tarihi', document.getElementById('revizyonTarihi')?.value || ''],
+            ['Revizyon No', document.getElementById('revizyonNo')?.value || ''],
+            [],
+            ['1. Pozisyon Adı', document.getElementById('pozisyonAdi')?.value || ''],
+            ['2. Şirket Adı', document.getElementById('sirketAdi')?.value || ''],
+            ['3. İş Birimi', document.getElementById('isBirimi')?.value || ''],
+            ['4. Lokasyon', document.getElementById('lokasyon')?.value || ''],
+            ['5. İdari Üst', document.getElementById('idariUst')?.value || ''],
+            ['6. Fonksiyonel Üst', document.getElementById('fonksiyonelUst')?.value || ''],
+            ['7. İştirakler', document.getElementById('istirakler')?.value || ''],
+            [],
+            ['8. Pozisyon Amacı', document.getElementById('pozisyonAmaci')?.value || ''],
+            ['Proje Portföy', document.getElementById('projePortfoy')?.value || '']
+        ];
+        const ws1 = XLSX.utils.aoa_to_sheet(ws1_data);
+        XLSX.utils.book_append_sheet(wb, ws1, 'Pozisyon Bilgileri');
+
+        const tasks = [];
+        document.querySelectorAll('#raciTableBody tr').forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length) {
+                tasks.push({
+                    surec: cells[0]?.querySelector('input,textarea')?.value || '',
+                    yetkinlik: cells[1]?.querySelector('input,textarea')?.value || '',
+                    davranis: cells[2]?.querySelector('input,textarea')?.value || '',
+                    raci: cells[3]?.querySelector('select')?.value || '',
+                    kpi: cells[4]?.querySelector('input,textarea')?.value || ''
+                });
+            }
+        });
+
+        const ws2_data = [['Süreç Adı', 'Yetkinlik', 'Davranış Göstergeleri', 'RACI', 'KPI']];
+        tasks.forEach(t => ws2_data.push([t.surec, t.yetkinlik, t.davranis, t.raci, t.kpi]));
+        const ws2 = XLSX.utils.aoa_to_sheet(ws2_data);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Görevler_RACI');
+
+        const ws3_data = [
+            ['Genel KPI Seti'],
+            ['OTIF', document.getElementById('kpi1')?.value || ''],
+            ['Kritik malzeme gecikmesi', document.getElementById('kpi2')?.value || ''],
+            ['Stok doğruluğu', document.getElementById('kpi3')?.value || ''],
+            ['Atıl stok', document.getElementById('kpi4')?.value || ''],
+            ['Satın alma tasarrufu', document.getElementById('kpi5')?.value || ''],
+            ['PO çevrim süresi', document.getElementById('kpi6')?.value || ''],
+            ['Gümrükleme çevrim süresi', document.getElementById('kpi7')?.value || ''],
+            ['ERP kayıt tamlık', document.getElementById('kpi8')?.value || ''],
+            [],
+            ['Yönetsel Yetkinlikler'],
+            ['Planlama & Organize Etme', document.querySelector('#mainForm .competence-card:first-child textarea')?.value || ''],
+            ['Finansal/Ticari Bakış', document.querySelector('#mainForm .competence-card:nth-child(2) textarea')?.value || ''],
+            ['Ekip Yönetimi', document.querySelector('#mainForm .competence-card:nth-child(3) textarea')?.value || '']
+        ];
+        const ws3 = XLSX.utils.aoa_to_sheet(ws3_data);
+        XLSX.utils.book_append_sheet(wb, ws3, 'KPI_Yetkinlikler');
+
+        const ws4_data = [
+            ['Görevi Tebliğ Eden', 'Görevli'],
+            ['Ad Soyad', document.getElementById('yoneticiAd')?.value || '', 'Ad Soyad', document.getElementById('gorevliAd')?.value || ''],
+            ['Pozisyon', document.getElementById('yoneticiPozisyon')?.value || '', 'Pozisyon', 'Tedarik Zinciri Müdürü'],
+            ['Tarih', document.getElementById('tebligTarihi')?.value || '', 'Tarih', ''],
+        ];
+        const ws4 = XLSX.utils.aoa_to_sheet(ws4_data);
+        XLSX.utils.book_append_sheet(wb, ws4, 'İmza');
+
+        XLSX.writeFile(wb, 'Tedarik_Zinciri_Muduru_RACI_Formu.xlsx');
+        alert('Excel dosyası oluşturuldu!');
+    };
+
+    window.resetForm = function() {
+        if (confirm('Tüm değişiklikler sıfırlansın mı?')) location.reload();
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTasks(defaultTasks);
+    });
+</script>
+</body>
+</html>

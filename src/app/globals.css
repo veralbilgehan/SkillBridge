@@ -5,6 +5,19 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* ── Light theme: remap zinc dark→light, light→dark ─────────────────────── */
+  --color-zinc-950: oklch(0.985 0 0);
+  --color-zinc-900: oklch(1 0 0);
+  --color-zinc-800: oklch(0.963 0 0);
+  --color-zinc-700: oklch(0.925 0 0);
+  --color-zinc-600: oklch(0.87 0 0);
+  --color-zinc-500: oklch(0.56 0 0);
+  --color-zinc-400: oklch(0.46 0 0);
+  --color-zinc-300: oklch(0.38 0 0);
+  --color-zinc-200: oklch(0.30 0 0);
+  --color-zinc-100: oklch(0.22 0 0);
+  --color-zinc-50:  oklch(0.16 0 0);
+  /* ─────────────────────────────────────────────────────────────────────────── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -123,4 +136,23 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ── Navbar dropdown animation ────────────────────────────────────────────── */
+@keyframes navbar-dropdown {
+  from { opacity: 0; transform: rotateX(-12deg) scale(0.92); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes navbar-slide-down {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Light theme: text-white on light zinc backgrounds should be near-black ── */
+/* Scoped to elements that do NOT have a colored button background             */
+.text-white:not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-emerald"]):not([class*="bg-amber"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-rose"]) {
+  color: oklch(0.145 0 0) !important;
+}
+.hover\:text-white:hover:not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-emerald"]):not([class*="bg-amber"]):not([class*="bg-red"]) {
+  color: oklch(0.145 0 0) !important;
 }
