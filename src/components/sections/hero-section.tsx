@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { TypewriterText } from "@/components/ui/typewriter-text";
@@ -97,45 +98,16 @@ const HeroSection = () => {
         {/* İşbirliği Bandı */}
         <motion.div
           variants={item}
-          className="flex items-center gap-5 mt-2 px-6 py-3.5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-sm"
+          className="mt-2 rounded-2xl overflow-hidden bg-white/95 shadow-lg shadow-black/30"
         >
-          {/* Mendomi Akademi logo */}
-          <div className="flex flex-col items-center gap-1">
-            <svg width="44" height="34" viewBox="0 0 44 34" fill="none">
-              {/* Sol bacak */}
-              <polygon points="0,34 9,2 17,22" fill="#1B2E6B" />
-              {/* Orta V */}
-              <polygon points="9,2 22,26 35,2" fill="#1B2E6B" />
-              {/* Sağ bacak */}
-              <polygon points="27,22 35,2 44,34" fill="#1B2E6B" />
-              {/* İç gölge */}
-              <polygon points="9,2 17,22 22,12 27,22 35,2 22,26" fill="#243880" opacity="0.45" />
-            </svg>
-            <span className="text-[8px] font-medium tracking-widest text-blue-300/60 uppercase whitespace-nowrap">
-              Mendomi Akademi
-            </span>
-          </div>
-
-          <div className="w-px h-8 bg-white/10" />
-
-          {/* BIGsafer logo */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-base font-black text-white tracking-tight leading-none">BIG</span>
-              <span className="text-base font-bold text-green-400 tracking-tight leading-none">safer</span>
-            </div>
-            <div className="w-full h-0.5 rounded-full bg-gradient-to-r from-green-500/60 to-green-400/20" />
-          </div>
-
-          <div className="w-px h-8 bg-white/10" />
-
-          {/* işbirliğiyle */}
-          <span
-            className="text-lg text-indigo-300/90 select-none"
-            style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontStyle: "italic", fontWeight: 600 }}
-          >
-            işbirliğiyle
-          </span>
+          <Image
+            src="/isbirligi.png"
+            alt="Mendomi Akademi × BIGsafer işbirliğiyle"
+            width={480}
+            height={240}
+            className="w-full max-w-sm object-contain"
+            priority
+          />
         </motion.div>
       </motion.div>
     </section>
