@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const text =
       response.content[0].type === "text" ? response.content[0].text : "";
 
-    return NextResponse.json({ text });
+    return NextResponse.json({ content: text });
   } catch (err) {
     console.error("Chat API error:", err);
     return NextResponse.json(
